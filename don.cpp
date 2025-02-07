@@ -3,10 +3,9 @@
 #include <cmath>
 #include <chrono>
 #include <thread>
-#include <windows.h>
-#include <conio.h>
 #include <atomic>
 #include <sstream>
+#include "lib/window/window.h"
 
 using namespace std;
 
@@ -26,24 +25,9 @@ atomic<bool> running(true);
 int rotation_mode = 1;
 
 // Функция получения размеров консоли
-void getConsoleSize(int &width, int &height) {
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    if(GetConsoleScreenBufferInfo(hConsole, &csbi)) {
-        width = csbi.srWindow.Right - csbi.srWindow.Left + 1;
-        height = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
-    } else {
-        width = 80;
-        height = 25;
-    }
-}
+
 
 // Функция установки курсора в позицию (x, y)
-void setCursorPosition(int x, int y) {
-    COORD pos = { static_cast<SHORT>(x), static_cast<SHORT>(y) };
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    SetConsoleCursorPosition(hConsole, pos);
-}
 
 // Функция формирования блока статической статистики
 vector<string> createStats(int totalWidth, int totalHeight) {
@@ -165,24 +149,23 @@ int main() {
     // В цикле можем обновлять динамические параметры, но блок статистики,
     // содержащий статичные элементы (например, заголовок), можно пересобирать только при изменениях размера окна.
     int totalWidth, totalHeight;
-    getConsoleSize(totalWidth, totalHeight);
+    getConsoleSize(&totalWidth, &totalHeight);
     vector<string> stats = createStats(totalWidth, totalHeight);
     
     while (running) {
         // Если размер консоли может изменяться, можно периодически обновлять stats.
-        int newWidth, newHeight;
-        getConsoleSize(newWidth, newHeight);
-        if (newWidth != totalWidth || newHeight != totalHeight) {
-            totalWidth = newWidth;
-            totalHeight = newHeight;
-            stats = createStats(totalWidth, totalHeight);
-        }
+        getConsoleSize(&totalWidth, &totalHeight);
+        // if (newWidth != totalWidth || newHeight != totalHeight) {
+        //     totalWidth = newWidth;
+        //     totalHeight = newHeight;
+        stats = createStats(totalWidth, totalHeight);
+        // }
         
         renderFrame(A, B, totalWidth, totalHeight, stats);
         updateAngles(A, B);
-        this_thread::sleep_for(chrono::milliseconds(30));
-        if (_kbhit() && _getch() == 13) // Выход по клавише Enter
-            running = false;
+        this_thread::sleep_for(chrono::milliseconds(10));
+        // if (_kbhit() && _getch() == 13) // Выход по клавише Enter
+        //     running = false;
     }
     
     return 0;

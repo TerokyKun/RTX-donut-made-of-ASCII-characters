@@ -1,2 +1,5 @@
 build/
 same/
+output/
+.vscode/
+test*
