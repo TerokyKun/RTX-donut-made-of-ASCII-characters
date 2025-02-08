@@ -6,15 +6,16 @@ void getConsoleSize(int* width, int* height){
     struct winsize w;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 
-    *width = w.ws_row ;
-    *height = w.ws_col;
+    *width = w.ws_col * 0.3;
+    *height = w.ws_row * 0.9;
+    // printf("row: %d, col: %d\nwidth: %d, height: %d\n", w.ws_row, w.ws_col, *width, *height);
     
     return;
 }
 
 
 void clearScreen(){
-
+    printf("\e[1;1H\e[2J");
 }
 
 /**
@@ -24,12 +25,8 @@ void clearScreen(){
  * @param y Координата строки (начинается с 1).
  */
 void setCursorPosition(int x, int y) {
-    // // Проверка границ для координат (предполагается, что терминал имеет размер 80x24)
-    // if (x < 1) x = 1;
-    // if (y < 1) y = 1;
-    // if (x > 80) x = 80;
-    // if (y > 24) y = 24;
 
+    clearScreen();
     // Перемещение курсора
     printf("\033[%d;%dH", y, x);
 }
